@@ -51,8 +51,8 @@ test("a new app from init gets restricted-wasm-v1 and builds a sandboxed guest",
   assert.deepEqual(data.descriptor.operations, []);
   assert.deepEqual(clientRuntimeProblems(data.descriptor, [], "tauri://localhost"), []);
   assert.equal(release.profile, "restricted-wasm-v1");
-  assert.equal(release.runtimePins.revision, "a1b90e38c9e5334facfa993062e237299c70de10");
-  assert.equal(release.runtimePins.files["restricted-wasm-v1/kotoba-client-runtime.js"], "d6f67c058c5c40fc56fe500648dc79704a2eee02d4af75fc17898aad1f560a75");
+  assert.equal(release.runtimePins.revision, "715b8e5f5caadbc9aee9c04c1b2471006ffcf666");
+  assert.equal(release.runtimePins.files["restricted-wasm-v1/kotoba-client-runtime.js"], "3e2bc61e8ce544d4cc12fbf7f893be4f7f0367be00e2e3d4ebdee5c3bb410367");
   assert.ok(!("app.js" in release.files) && !("data.js" in release.files), "the trusted-page entry does not ship");
 
   // The host page: no inline script or style, and the exact policy.
@@ -61,7 +61,7 @@ test("a new app from init gets restricted-wasm-v1 and builds a sandboxed guest",
   for (const tag of index.matchAll(/<script\b[^>]*>/gi)) assert.ok(/src=/.test(tag[0]), `no inline script in the host: ${tag[0]}`);
   assert.ok(!/<style[\s>]/i.test(index));
   const vendored = await readFile(join(app, "dist/vendor/kotoba-client-runtime.js"));
-  assert.equal(createHash("sha256").update(vendored).digest("hex"), "d6f67c058c5c40fc56fe500648dc79704a2eee02d4af75fc17898aad1f560a75");
+  assert.equal(createHash("sha256").update(vendored).digest("hex"), "3e2bc61e8ce544d4cc12fbf7f893be4f7f0367be00e2e3d4ebdee5c3bb410367");
 
   // The guest: verified by the canonical runtime against the pinned digest and commit.
   const { default: host } = await import(join(app, "dist/host-data.js"));
