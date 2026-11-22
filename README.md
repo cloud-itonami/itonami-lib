@@ -187,7 +187,9 @@ and what it can do after. Fill it in from the code and a hands-on run of both
 builds, not from memory. If even one feature is lost or degraded, do not
 merge. Mark features that exist only on Android or only on the web. The
 template is `templates/parity-table.md`; `scripts/bump-series.mjs` puts it in
-every PR it opens and opens the PR as a draft until the table is filled.
+every PR it opens and opens the PR as a draft until the table is filled. A deliberate loss
+needs a documented exception line (what was reduced, why, who decided, the date)
+in the PR body and the app's README.
 
 ## Moving repositories to a new lib commit
 
