@@ -4,6 +4,20 @@ Every entry names any change to the shape of `dist/release.json` (the Store
 catalog, awai-os `series-catalog.py`, reads it; tell Itonami before such a
 change lands).
 
+## v0.1.3 (2026-11-22)
+
+- restricted-wasm-v1 runtime: kotoba-lang/kotoba PR #1372 (KOTOBA-968,
+  KOTOBA-159 runtime PR 1), main 715b8e5f5caadbc9aee9c04c1b2471006ffcf666;
+  `kotoba-client-runtime.js` sha256 3e2bc61e8ce544d4cc12fbf7f893be4f7f0367be00e2e3d4ebdee5c3bb410367,
+  `kotoba-client-consent.css` sha256 c76ed61a1a59cc1d84f9ec19afd9f49562df6c28a4c6078ccfb7dec8f34240bb
+  (replaces #1367). It carries Legal's one-time wording. trusted-page-v1 apps keep 4463ae79.
+- host-local storage stays unused until KOTOBA-972 (Tauri Android host
+  evidence) is recorded: `HOST_LOCAL_ALLOWED = false`; the build refuses a
+  descriptor with `host-local` or a host-local body, and a test keeps the
+  host from opening a host-local channel.
+
+release.json shape: unchanged (`runtimePins` of a restricted app names the new revision and digests).
+
 ## v0.1.2 (2026-11-22)
 
 - `formValues` (and so `bindForm`'s values): the shape follows from the form's

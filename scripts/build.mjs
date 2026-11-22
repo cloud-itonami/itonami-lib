@@ -49,6 +49,23 @@ export function profileOf(meta) {
   return profile;
 }
 
+/**
+ * host-local storage (kotoba.host-local.v1, runtime PR 1 / KOTOBA-968) stays
+ * unused by this lib until the Tauri Android host evidence (KOTOBA-972) is
+ * recorded. Until then the build refuses a descriptor that declares
+ * `host-local`, or an operation whose body reads or writes host-local storage.
+ * Turning this on is a lib change with its own evidence, not an app setting.
+ */
+export const HOST_LOCAL_ALLOWED = false;
+
+export function checkHostLocal(descriptor) {
+  if (HOST_LOCAL_ALLOWED) return;
+  if (descriptor && Object.hasOwn(descriptor, "host-local")) throw new Error("the descriptor declares host-local storage, which this lib does not use until KOTOBA-972 (Tauri Android host evidence) is recorded");
+  for (const op of descriptor?.operations ?? []) {
+    if (op?.["request-body"] === "host-local" || op?.["response-body"] === "host-local") throw new Error("an operation body uses host-local storage, which this lib does not use until KOTOBA-972 is recorded");
+  }
+}
+
 /** The itonami.source of every existing series app (the 2026-11-22 list). */
 export function existingApps(lib = LIB) {
   return readFileSync(resolve(lib, TRUSTED_PAGE_V1_LIST), "utf8").split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
@@ -250,6 +267,7 @@ export async function build(appRoot = process.cwd(), env = process.env, { now = 
     schema: "kotoba.app.client-runtime.v1", target: "browser", profile, entry: "index.html",
     "local-state": { adapter: restricted ? "memory" : "localstorage", schema: identity.stateSchema, version: 1 }, workers: [], operations: [],
   };
+  checkHostLocal(descriptor);
   const data = { identity, version: meta.version, blueprint, physics, console: operatorConsole, sources, descriptor };
 
   await rm(out, { recursive: true, force: true });

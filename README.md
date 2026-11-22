@@ -123,7 +123,7 @@ here after Legal has given them.
 
 - `restricted-wasm-v1` for every new app (`itonami-app init` writes it). The
   page is a trusted host with the canonical runtime from
-  `vendor/restricted-wasm-v1/` (kotoba #1367); the guest is verified against
+  `vendor/restricted-wasm-v1/` (kotoba #1372 at 715b8e5f, sha256 3e2bc61e…); the guest is verified against
   the digest and source commit pinned at build time and mounted in an
   opaque-origin sandbox. The build needs the source commit (a git checkout, or
   `ITONAMI_SOURCE_COMMIT`).

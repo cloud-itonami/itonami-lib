@@ -1,6 +1,6 @@
 {
   "name": "@itonami/series-app",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "The shared app of the Itonami classification-series repositories: build, view, restricted host and guest, Android steps, checks",
   "license": "AGPL-3.0-or-later",
   "repository": {
