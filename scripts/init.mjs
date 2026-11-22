@@ -7,7 +7,7 @@
 // capabilities/main.json, .gitignore, README.md, .github/workflows/app.yml).
 // Everything else comes from this package, pinned by commit SHA.
 import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { copyFile, mkdir, mkdtemp, readFile, rm, rmdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -22,6 +22,8 @@ export const LIB_GIT = `https://github.com/${LIB_REPO}`;
 export const PACKAGE = "@itonami/series-app";
 const SHA = /^[0-9a-f]{40}$/;
 const SHELL = join(LIB, "templates/shell");
+/** The @tauri-apps/cli version this lib pins (its own package.json). */
+export const TAURI_CLI = JSON.parse(readFileSync(join(LIB, "package.json"), "utf8")).dependencies["@tauri-apps/cli"];
 
 /** Shell files: [path under the shell template, path under app/]. Byte-identical in every repository. */
 export const SHELL_FILES = [
@@ -181,7 +183,9 @@ export async function init(repoRoot, { icons = true, repo: repoName = null, libR
       android: "itonami-app android",
       "build:desktop": "itonami-app build && tauri build --no-bundle",
     },
-    devDependencies: { [PACKAGE]: npmDep },
+    // The tauri CLI is named here too, at the lib's pin, so node_modules/.bin/tauri
+    // exists whatever npm hoists (Gradle runs `npm run tauri` again from src-tauri).
+    devDependencies: { [PACKAGE]: npmDep, "@tauri-apps/cli": TAURI_CLI },
   };
   await writeFile(join(app, "package.json"), JSON.stringify(pkg, null, 2) + "\n");
 

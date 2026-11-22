@@ -48,7 +48,7 @@ test("init writes the identity files and the shell, pinned by rev", async (t) =>
   const pkg = JSON.parse(await readFile(join(repo, "app/package.json"), "utf8"));
   assert.equal(pkg.name, "@itonami/cofog032");
   assert.deepEqual(pkg.itonami, { id: "network.itonami.cofog032", title: "Household Consumption", source: "cloud-itonami-cofog-03.2", runtime: "restricted-wasm-v1" });
-  assert.deepEqual(pkg.devDependencies, { "@itonami/series-app": `github:cloud-itonami/itonami-lib#${REV}` });
+  assert.deepEqual(pkg.devDependencies, { "@itonami/series-app": `github:cloud-itonami/itonami-lib#${REV}`, "@tauri-apps/cli": "3.0.0-alpha.6" });
   assert.equal(pinnedRev(pkg), REV);
   assert.equal(pkg.scripts.test, "itonami-app test");
   assert.equal(pkg.scripts.build, "itonami-app build");
