@@ -166,7 +166,6 @@ export async function init(repoRoot, { icons = true, repo: repoName = null, libR
       // Only an emptied directory goes; anything else in it stays for review.
       await rmdir(join(app, dir)).catch(() => {});
     }
-    await rm(join(repo, ".github/workflows/app-host.yml"), { force: true });
   }
 
   const npmDep = lib.npm ?? `file:${relative(app, lib.path)}`;
@@ -231,11 +230,14 @@ export async function init(repoRoot, { icons = true, repo: repoName = null, libR
     }
   }
 
-  // The caller workflow: a few lines that run this lib's reusable workflow at
+  // The caller workflows (app.yml: npm test; app-host.yml: cargo check of the
+  // host): a few lines each that run this lib's reusable workflow at
   // the pinned commit. A local --lib-path fixture gets none.
   if (lib.workflow) {
     await mkdir(join(repo, ".github/workflows"), { recursive: true });
-    await writeFile(join(repo, ".github/workflows/app.yml"), fill(await readFile(join(SHELL, "app.yml.tmpl"), "utf8"), { LIB_REV: lib.workflow }));
+    for (const name of ["app", "app-host"]) {
+      await writeFile(join(repo, `.github/workflows/${name}.yml`), fill(await readFile(join(SHELL, `${name}.yml.tmpl`), "utf8"), { LIB_REV: lib.workflow }));
+    }
   }
   return { identity, app, version, lib };
 }

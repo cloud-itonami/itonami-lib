@@ -1,11 +1,16 @@
 {
   "name": "@itonami/series-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The shared app of the Itonami classification-series repositories: build, view, restricted host and guest, Android steps, checks",
   "license": "AGPL-3.0-or-later",
-  "repository": { "type": "git", "url": "git+https://github.com/cloud-itonami/itonami-lib.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cloud-itonami/itonami-lib.git"
+  },
   "type": "module",
-  "bin": { "itonami-app": "bin/itonami-app.mjs" },
+  "bin": {
+    "itonami-app": "bin/itonami-app.mjs"
+  },
   "exports": {
     "./build": "./scripts/build.mjs",
     "./identity": "./scripts/identity.mjs",
@@ -19,7 +24,8 @@
     "./android-manifest": "./scripts/android-manifest.mjs",
     "./verify-apk": "./scripts/verify-apk.mjs",
     "./view": "./src/view.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./form": "./src/form.js"
   },
   "files": [
     "bin/",
@@ -34,7 +40,9 @@
     "test/app/",
     "CHANGELOG.md"
   ],
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "test": "node --test --test-concurrency=1 test/*.test.mjs && node scripts/check-public.mjs"
   },

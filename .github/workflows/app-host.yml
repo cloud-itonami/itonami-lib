@@ -1,0 +1,28 @@
+# Reusable workflow: compile the Tauri host of a classification-series
+# repository. A series repository calls it from its own app-host.yml (which
+# runs on changes to app/src-tauri/** and the lib pins) at a pinned lib commit:
+#   jobs:
+#     host:
+#       uses: cloud-itonami/itonami-lib/.github/workflows/app-host.yml@<sha>
+# `cargo check --locked` runs build.rs (itonami-series-build) and expands
+# generate_context!() against the committed Cargo.lock, so a missing crate, a
+# wrong crate name or lock drift fails here. Hosted tooling, not a release
+# artifact. Many series repositories have Actions disabled; there the same
+# check runs on the Tatara move (Dev item 58) or locally.
+name: series-app-host
+on:
+  workflow_call: {}
+permissions:
+  contents: read
+jobs:
+  host:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: rustup update stable && rustup default stable && rustc --version
+      - run: npm ci && npm run build
+        working-directory: app
+      - run: cargo check --locked
+        working-directory: app/src-tauri
