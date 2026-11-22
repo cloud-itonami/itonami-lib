@@ -1,0 +1,44 @@
+{
+  "name": "@itonami/series-app",
+  "version": "0.1.0",
+  "description": "The shared app of the Itonami classification-series repositories: build, view, restricted host and guest, Android steps, checks",
+  "license": "AGPL-3.0-or-later",
+  "repository": { "type": "git", "url": "git+https://github.com/cloud-itonami/itonami-lib.git" },
+  "type": "module",
+  "bin": { "itonami-app": "bin/itonami-app.mjs" },
+  "exports": {
+    "./build": "./scripts/build.mjs",
+    "./identity": "./scripts/identity.mjs",
+    "./edn": "./scripts/edn.mjs",
+    "./icon": "./scripts/icon.mjs",
+    "./console": "./scripts/console.mjs",
+    "./attribution": "./scripts/attribution.mjs",
+    "./license": "./scripts/license.mjs",
+    "./init": "./scripts/init.mjs",
+    "./android": "./scripts/android.mjs",
+    "./android-manifest": "./scripts/android-manifest.mjs",
+    "./verify-apk": "./scripts/verify-apk.mjs",
+    "./view": "./src/view.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin/",
+    "scripts/*.mjs",
+    "!scripts/bump-series.mjs",
+    "!scripts/check-public.mjs",
+    "scripts/trusted-page-v1-existing.txt",
+    "src/",
+    "vendor/",
+    "android/",
+    "templates/",
+    "test/app/",
+    "CHANGELOG.md"
+  ],
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 test/*.test.mjs && node scripts/check-public.mjs"
+  },
+  "dependencies": {
+    "@tauri-apps/cli": "3.0.0-alpha.6"
+  }
+}

@@ -1,0 +1,10 @@
+name: app
+on:
+  pull_request:
+    paths: ["app/**", "blueprint.edn", "physics.edn", "docs/samples/**", ".github/workflows/app.yml"]
+  push:
+    branches: [main]
+    paths: ["app/**", "blueprint.edn", "physics.edn", "docs/samples/**", ".github/workflows/app.yml"]
+jobs:
+  test:
+    uses: cloud-itonami/itonami-lib/.github/workflows/app.yml@{{LIB_REV}}

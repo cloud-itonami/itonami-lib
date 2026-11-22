@@ -1,0 +1,23 @@
+# Reusable workflow for the classification-series repositories. A series
+# repository calls it at a pinned lib commit:
+#   jobs:
+#     test:
+#       uses: cloud-itonami/itonami-lib/.github/workflows/app.yml@<sha>
+# It checks out the calling repository and runs `npm ci && npm test` in app/,
+# which builds the app and runs this lib's checks of that repository.
+name: series-app
+on:
+  workflow_call: {}
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+        working-directory: app
+      - run: npm test
+        working-directory: app

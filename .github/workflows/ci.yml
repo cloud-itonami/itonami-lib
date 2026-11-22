@@ -1,0 +1,33 @@
+name: ci
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+permissions:
+  contents: read
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+      - run: npm test
+  public:
+    # The no-secrets / no-internal-URL check on its own, so it shows by name.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node scripts/check-public.mjs
+  crates:
+    # Hosted tooling: compiles and tests the two crates (tauri needs the macOS
+    # WebView on this runner). Not a release artifact.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update stable && rustup default stable && rustc --version
+      - run: cargo test --workspace --locked

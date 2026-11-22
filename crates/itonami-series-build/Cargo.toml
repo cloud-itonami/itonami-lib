@@ -1,0 +1,11 @@
+[package]
+name = "itonami-series-build"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.95"
+license = "AGPL-3.0-or-later"
+description = "build.rs body for the Itonami classification-series apps: app id, 16 KB pages, Tauri build"
+repository = "https://github.com/cloud-itonami/itonami-lib"
+publish = false
+[dependencies]
+tauri-build = { version = "=3.0.0-alpha.4", features = [] }

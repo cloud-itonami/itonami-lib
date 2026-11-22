@@ -1,0 +1,5 @@
+# The two Rust crates every series app shell depends on. Each repository pins
+# them by git `rev` (a commit SHA, never a branch or tag); see README.md.
+[workspace]
+resolver = "2"
+members = ["crates/itonami-series-host", "crates/itonami-series-build"]

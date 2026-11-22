@@ -1,0 +1,19 @@
+[package]
+name = "itonami-series-app"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.95"
+[lib]
+name = "itonami_series_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+[build-dependencies]
+itonami-series-build = {{LIB_DEP}}
+[dependencies]
+# tauri must equal the pin in itonami-series-host: generate_context!() expands here.
+tauri = { version = "=3.0.0-alpha.6", features = [] }
+itonami-series-host = {{LIB_DEP}}
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+[profile.dev]
+debug = 0
+strip = "symbols"
