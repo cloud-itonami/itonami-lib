@@ -31,3 +31,28 @@ jobs:
       - uses: actions/checkout@v4
       - run: rustup update stable && rustup default stable && rustc --version
       - run: cargo test --workspace --locked
+  pilot-host:
+    # End to end on the pilot identity: itonami-app init (with icons) into a
+    # fixture repository, build, then compile its shell crate against the
+    # crates in this checkout. Hosted tooling, not a release artifact.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: rustup update stable && rustup default stable && rustc --version
+      - run: npm ci
+      - name: init the pilot fixture
+        run: |
+          set -eu
+          fx="$RUNNER_TEMP/app-itonami-cloud-itonami-isco-2423"
+          mkdir -p "$fx/app"
+          printf '%s\n' '[{:itonami.blueprint/id "cloud-itonami-isco-2423"' ' :itonami.blueprint/name "Community Careers Practice"' ' :itonami.blueprint/isco-08 "2423"' ' :itonami.blueprint/license "AGPL-3.0-or-later"}]' > "$fx/blueprint.edn"
+          echo '{"version":"0.1.0"}' > "$fx/app/package.json"
+          node bin/itonami-app.mjs init "$fx" --repo cloud-itonami-isco-2423 --lib-path "$GITHUB_WORKSPACE"
+          git -C "$fx" init -q && git -C "$fx" add . && git -C "$fx" -c user.name=ci -c user.email=ci@example.invalid commit -q -m fixture
+          echo "FX=$fx" >> "$GITHUB_ENV"
+      - run: node "$GITHUB_WORKSPACE/bin/itonami-app.mjs" test
+        working-directory: ${{ env.FX }}/app
+      - run: cargo build
+        working-directory: ${{ env.FX }}/app/src-tauri

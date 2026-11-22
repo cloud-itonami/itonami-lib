@@ -52,3 +52,8 @@ test("no copied template file is left", () => {
   const left = LEGACY_TEMPLATE_FILES.filter((f) => existsSync(join(APP, f)));
   assert.deepEqual(left, [], "run itonami-app init --migrate");
 });
+
+test("the tauri CLI is the lib's pin", async () => {
+  const { TAURI_CLI } = await import("../../scripts/init.mjs");
+  assert.equal(meta.devDependencies?.["@tauri-apps/cli"], TAURI_CLI);
+});

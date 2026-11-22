@@ -3,3 +3,5 @@
 [workspace]
 resolver = "2"
 members = ["crates/itonami-series-host", "crates/itonami-series-build"]
+# Scratch clones (bump-series.mjs --work, worker output) hold other crates.
+exclude = [".agent-output"]
