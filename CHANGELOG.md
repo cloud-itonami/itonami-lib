@@ -4,6 +4,17 @@ Every entry names any change to the shape of `dist/release.json` (the Store
 catalog, awai-os `series-catalog.py`, reads it; tell Itonami before such a
 change lands).
 
+## v0.1.2 (2026-11-22)
+
+- `formValues` (and so `bindForm`'s values): the shape follows from the form's
+  structure. A name held by more than one enabled, non-button control is
+  always an array, so two same-name checkboxes with one checked give `["x"]`,
+  not `"x"` (found by Itonami in 7ac52696); repeated text names follow the
+  same rule. A lone checkbox stays a boolean, a radio group a value or `null`,
+  a multiple select an array. The restricted guest CSP hash changes.
+
+release.json shape: unchanged.
+
 ## v0.1.1 (2026-11-22)
 
 - Reusable workflow `.github/workflows/app-host.yml`: `cargo check --locked` of

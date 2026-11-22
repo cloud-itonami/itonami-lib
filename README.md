@@ -152,10 +152,13 @@ bindForm(form, onSubmit) // → unbind()
 - Both call `preventDefault`, so nothing navigates.
 - Native validation stays: `form.reportValidity()` (else `checkValidity()`)
   must pass first.
-- Values: a text-like field gives its string; a lone checkbox gives a boolean,
-  several checkboxes of one name the array of checked values; a radio group
-  gives the checked value or `null`; a multiple select an array; repeated names
-  an array. Buttons, file inputs and disabled fields are left out.
+- Values: the shape follows from the form's structure, never from what is
+  checked. A name held by more than one enabled, non-button control is always
+  an array (`[]`, `["x"]`, `["x", "y"]`): checkboxes give their checked
+  values, other fields their values. A lone checkbox is a boolean; a radio
+  group is the checked value or `null`; a multiple select is always an array;
+  any other lone field is its string. Buttons, file inputs and disabled fields
+  are left out.
 - Sending the values anywhere goes through the broker operation; that is the
   caller's job.
 
