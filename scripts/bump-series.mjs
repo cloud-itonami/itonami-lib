@@ -19,13 +19,20 @@
 //     version), then `npm ci && npm test`;
 //  4. stop for that repository when the package id or identifier changed, or
 //     when a test fails: no PR is opened;
-//  5. otherwise commit, push the branch and open the PR (not with --dry-run).
+//  5. otherwise commit, push the branch and open the PR as a draft (not with
+//     --dry-run). The PR body carries the feature parity table
+//     (templates/parity-table.md, Decision 2026-11-22). It is filled in from
+//     the code and a hands-on run of both builds; the PR is marked ready, and
+//     merged, only when no feature is lost or degraded.
 // The script never merges. It touches only the repositories it is given.
 import { execFileSync, spawnSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { pinnedRev } from "./init.mjs";
+
+/** The feature parity table every move PR carries (Decision 2026-11-22). */
+export const PARITY_TABLE = readFileSync(new URL("../templates/parity-table.md", import.meta.url), "utf8").trim();
 
 const LIB = fileURLToPath(new URL("../", import.meta.url));
 const SHA = /^[0-9a-f]{40}$/;
@@ -127,11 +134,14 @@ export async function bumpOne(repo, o) {
     `- Package id \`${after.id}\` and \`tauri.conf.json\` identifier \`${after.identifier}\`: unchanged (checked before and after).`,
     `- \`npm ci && npm test\`: ${c.pass} pass, ${c.fail} fail.`,
     ...(row.mode === "migrate" ? ["- The console.mjs fix (samples without `<section>`) and every other template change up to this lib commit come with the lib."] : []),
+    "",
+    PARITY_TABLE,
     ...(o.issue ? ["", `Tracking: ${o.issue}`] : []),
     ...(o.prFooter ? ["", o.prFooter] : []),
   ].join("\n");
-  const pr = must("gh", ["pr", "create", "--repo", `cloud-itonami/${repo}`, "--head", branch, "--title", subject, "--body", body]).trim().split("\n").pop();
-  return { ...row, result: "pr-opened", pr };
+  // A draft until the parity table is filled in from a hands-on run.
+  const pr = must("gh", ["pr", "create", "--draft", "--repo", `cloud-itonami/${repo}`, "--head", branch, "--title", subject, "--body", body]).trim().split("\n").pop();
+  return { ...row, result: "draft-pr-opened-fill-parity", pr };
 }
 
 async function main() {
