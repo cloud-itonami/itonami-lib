@@ -37,8 +37,9 @@ test("every move PR carries the feature parity table and opens as a draft", asyn
   const { readFile } = await import("node:fs/promises");
   assert.match(PARITY_TABLE, /^## Feature parity \(required before merge\)/);
   assert.match(PARITY_TABLE, /\| Feature \| Before \(main\) \| After \(this PR\) \| Platform \| How checked \| Same\? \|/);
-  for (const row of ["Deep links", "Scroll position restored on Back", "Offline behaviour", "Recents and screenshot", "Selected tab kept across launches"]) assert.ok(PARITY_TABLE.includes(row), row);
+  for (const row of ["Deep links", "Scroll position restored on Back", "Offline behaviour", "Recents and screenshot", "Selected tab kept across launches", "Native dialogs", "Each external operation", "State kept across launches"]) assert.ok(PARITY_TABLE.includes(row), row);
   assert.match(PARITY_TABLE, /do not merge/);
+  assert.match(PARITY_TABLE, /意図して減らした機能: …。理由: …。決めた人: …、YYYY-MM-DD/, "the documented-exception line");
   const script = await readFile(new URL("../scripts/bump-series.mjs", import.meta.url), "utf8");
   assert.ok(script.includes('"pr", "create", "--draft"'), "PRs open as drafts until the table is filled");
   assert.ok(script.includes("PARITY_TABLE,"), "the body carries the table");

@@ -16,7 +16,12 @@ Rule (Decision, 2026-11-22): every KOTOBA-159 migration PR and every itonami-lib
 | Scroll position restored on Back (measure scrollY before and after) | | | all | | |
 | Offline behaviour | | | all | | |
 | Recents and screenshot behaviour | | | Android | | |
+| Native dialogs (`confirm`, `alert`, `prompt`) still ask, or the app has its own modal instead. A `sandbox="allow-scripts"` guest gets `false` without a question. | | | all | | |
+| Each external operation: the consent dialog opens, denying sends nothing, and allowing sends exactly the declared request once | | | all | | |
+| State kept across launches (localStorage, IndexedDB, files) and where it lives after | | | all | | |
 | Package id, label, version | | | Android | | |
 | Anything else the app does (list it) | | | | | |
 
 Write "none before, none after" for a feature the app never had, so a reader can tell "absent" from "not checked".
+
+A deliberate loss is merged only as a documented exception, written as: 「意図して減らした機能: …。理由: …。決めた人: …、YYYY-MM-DD」. Copy that line into the PR body and the app's README, and say who decided and when. (Example: karute, FLAG_SECURE, Owner bot, 2026-11-22.)
