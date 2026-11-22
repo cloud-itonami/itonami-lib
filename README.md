@@ -179,13 +179,24 @@ change to it is announced in `CHANGELOG.md` first.
 A worker's scratch directory inside the checkout makes the build `dirty`. Keep
 it outside the repository, or add it to `.git/info/exclude` before building.
 
+## Feature parity rule
+
+Every KOTOBA-159 migration PR and every itonami-lib move PR carries a feature
+parity table in its body (Decision, 2026-11-22): what the app could do before,
+and what it can do after. Fill it in from the code and a hands-on run of both
+builds, not from memory. If even one feature is lost or degraded, do not
+merge. Mark features that exist only on Android or only on the web. The
+template is `templates/parity-table.md`; `scripts/bump-series.mjs` puts it in
+every PR it opens and opens the PR as a draft until the table is filled.
+
 ## Moving repositories to a new lib commit
 
 `scripts/bump-series.mjs --lib <sha> --repos <file> --results <tsv>` opens one
 PR per repository. It writes the new SHA into the three pins, regenerates both
 lock files, re-runs `itonami-app init`, refuses when `itonami.id` or the
 `tauri.conf.json` identifier changes, runs `npm ci && npm test`, and records
-each result in the TSV. Only repositories whose tests pass get a PR. A
+each result in the TSV. Only repositories whose tests pass get a PR, opened
+as a draft with the feature parity table to fill in. A
 repository left on an older commit keeps working: its own lock files fix it.
 
 ## Developing the lib

@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { COLUMNS, counts, parseArgs, readRepos } from "../scripts/bump-series.mjs";
+import { COLUMNS, PARITY_TABLE, counts, parseArgs, readRepos } from "../scripts/bump-series.mjs";
 
 const SHA = "0123456789abcdef0123456789abcdef01234567";
 
@@ -31,4 +31,15 @@ test("test counts and the TSV columns", () => {
   assert.deepEqual(counts("ℹ tests 3\nℹ pass 3\nℹ fail 0\n"), { pass: 3, fail: 0 });
   assert.deepEqual(counts("ℹ pass 2\nℹ fail 1\nℹ pass 4\nℹ fail 0\n"), { pass: 6, fail: 1 });
   for (const c of ["repo", "lib_sha", "id_before", "id_after", "id_unchanged", "tests_pass", "tests_fail", "result", "pr"]) assert.ok(COLUMNS.includes(c));
+});
+
+test("every move PR carries the feature parity table and opens as a draft", async () => {
+  const { readFile } = await import("node:fs/promises");
+  assert.match(PARITY_TABLE, /^## Feature parity \(required before merge\)/);
+  assert.match(PARITY_TABLE, /\| Feature \| Before \(main\) \| After \(this PR\) \| Platform \| How checked \| Same\? \|/);
+  for (const row of ["Deep links", "Scroll position restored on Back", "Offline behaviour", "Recents and screenshot", "Selected tab kept across launches"]) assert.ok(PARITY_TABLE.includes(row), row);
+  assert.match(PARITY_TABLE, /do not merge/);
+  const script = await readFile(new URL("../scripts/bump-series.mjs", import.meta.url), "utf8");
+  assert.ok(script.includes('"pr", "create", "--draft"'), "PRs open as drafts until the table is filled");
+  assert.ok(script.includes("PARITY_TABLE,"), "the body carries the table");
 });
