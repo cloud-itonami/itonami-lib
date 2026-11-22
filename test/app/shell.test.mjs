@@ -46,6 +46,8 @@ test("the lib is pinned by one commit SHA in package.json, Cargo.toml and the wo
   assert.ok(cargoLock.includes(`git+https://github.com/cloud-itonami/itonami-lib?rev=${rev}#${rev}`), "Cargo.lock resolves the same commit");
   const workflow = await readFile(join(REPO, ".github/workflows/app.yml"), "utf8");
   assert.ok(workflow.includes(`uses: cloud-itonami/itonami-lib/.github/workflows/app.yml@${rev}`), "app.yml calls the reusable workflow at the same commit");
+  const host = await readFile(join(REPO, ".github/workflows/app-host.yml"), "utf8");
+  assert.ok(host.includes(`uses: cloud-itonami/itonami-lib/.github/workflows/app-host.yml@${rev}`), "app-host.yml compiles the host at the same commit");
 });
 
 test("no copied template file is left", () => {

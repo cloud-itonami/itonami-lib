@@ -83,6 +83,9 @@ test("init writes the identity files and the shell, pinned by rev", async (t) =>
   const workflow = await readFile(join(repo, ".github/workflows/app.yml"), "utf8");
   assert.ok(workflow.includes(`uses: cloud-itonami/itonami-lib/.github/workflows/app.yml@${REV}`));
   assert.ok(!workflow.includes("{{"));
+  const host = await readFile(join(repo, ".github/workflows/app-host.yml"), "utf8");
+  assert.ok(host.includes(`uses: cloud-itonami/itonami-lib/.github/workflows/app-host.yml@${REV}`), "the host compile runs at the same commit");
+  assert.ok(host.includes('"app/src-tauri/**"') && host.includes('"app/package-lock.json"'));
 });
 
 test("a lib pin must be a commit SHA, never a branch or a tag", async (t) => {
@@ -175,7 +178,7 @@ test("--migrate removes the copied template and keeps everything else", async (t
   for (const f of LEGACY_TEMPLATE_FILES) assert.ok(!existsSync(join(repo, "app", f)), `${f} is removed`);
   for (const d of ["android", "scripts", "test", "vendor"]) assert.ok(!existsSync(join(repo, "app", d)), `app/${d}/ is gone`);
   assert.equal(await readFile(join(repo, "app/src/keep.txt"), "utf8"), "mine\n", "an unknown file stays");
-  assert.ok(!existsSync(join(repo, ".github/workflows/app-host.yml")));
+  assert.ok((await readFile(join(repo, ".github/workflows/app-host.yml"), "utf8")).includes(`app-host.yml@${REV}`), "the old host workflow becomes the lib caller");
   assert.equal(await readFile(join(repo, ".github/workflows/other.yml"), "utf8"), "mine\n");
   const top = readdirSync(join(repo, "app")).sort();
   assert.deepEqual(top, [".gitignore", "README.md", "icon", "package.json", "src", "src-tauri"]);

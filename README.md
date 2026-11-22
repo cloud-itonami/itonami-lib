@@ -12,6 +12,7 @@ and guest, the Android steps and the checks) lives here, once.
 | `crates/itonami-series-host` | `run(ctx)` and the one read-only command `awai_host_info` |
 | `crates/itonami-series-build` | the whole `build.rs`: app id from `tauri.conf.json`, the 16 KB page link arg on Android, Tauri's build step |
 | `.github/workflows/app.yml` | reusable workflow (`npm ci && npm test` in `app/`) that series repositories call |
+| `.github/workflows/app-host.yml` | reusable workflow: `cargo check --locked` of the Tauri host in `app/src-tauri` |
 | `scripts/bump-series.mjs` | opens one PR per series repository to move it to a new lib commit |
 
 ## How a series repository uses it
@@ -24,7 +25,10 @@ What stays in the repository:
 - the shell, the same in every repository: `app/src-tauri/Cargo.toml`,
   `build.rs` (1 line), `src/lib.rs` (3 lines), `src/main.rs`,
   `capabilities/main.json`, `app/.gitignore`, `app/README.md`, and
-  `.github/workflows/app.yml` (a few lines that call this lib's workflow);
+  `.github/workflows/app.yml` and `app-host.yml` (a few lines each that call
+  this lib's workflows; `app-host.yml` runs on changes to `app/src-tauri/**`
+  and the pins). Many series repositories have Actions disabled, so these do
+  not run everywhere; that gap is covered by the Tatara move (Dev item 58);
 - the lock files `app/package-lock.json` and `app/src-tauri/Cargo.lock`,
   committed.
 
@@ -126,6 +130,39 @@ here after Legal has given them.
 - `trusted-page-v1` only for the existing apps listed in
   `scripts/trusted-page-v1-existing.txt`, and only through 2027-03-31 (UTC).
   That list is also the one test of "existing".
+
+## Forms in a restricted-wasm-v1 guest
+
+The guest sandbox is `allow-scripts` only (no `allow-forms`), so a form's
+`submit` event never fires. Use `bindForm` from `src/form.js`
+(`import { bindForm } from "@itonami/series-app/form"`; the restricted build
+inlines it into the guest script):
+
+```js
+bindForm(form, onSubmit) // → unbind()
+// onSubmit(values, form): values is a plain object of the form's named, enabled fields
+```
+
+- Submit controls in the form (a button of type submit or with no type, an
+  input of type submit) become `type="button"` with `data-submit`; a click on
+  any `[data-submit]` control runs `onSubmit`. Write new forms with
+  `<button type="button" data-submit>`.
+- Enter in a single-line `<input>` runs the same handler (keydown). Never in a
+  `<textarea>`, and never during IME composition (`isComposing` or keyCode 229).
+- Both call `preventDefault`, so nothing navigates.
+- Native validation stays: `form.reportValidity()` (else `checkValidity()`)
+  must pass first.
+- Values: a text-like field gives its string; a lone checkbox gives a boolean,
+  several checkboxes of one name the array of checked values; a radio group
+  gives the checked value or `null`; a multiple select an array; repeated names
+  an array. Buttons, file inputs and disabled fields are left out.
+- Sending the values anywhere goes through the broker operation; that is the
+  caller's job.
+
+The restricted build refuses a guest that relies on a submit event (a submit
+listener, `onsubmit=`, `requestSubmit()`, `form.submit()`, or a type=submit
+control). `test/form-browser.test.mjs` checks click, Enter, IME Enter and
+validation in headless Chrome inside a `sandbox="allow-scripts"` iframe.
 
 ## release.json
 

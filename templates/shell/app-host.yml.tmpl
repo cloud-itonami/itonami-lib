@@ -1,0 +1,8 @@
+name: app-host
+on:
+  pull_request:
+    paths: ["app/src-tauri/**", "app/package.json", "app/package-lock.json", ".github/workflows/app-host.yml"]
+  workflow_dispatch: {}
+jobs:
+  host:
+    uses: cloud-itonami/itonami-lib/.github/workflows/app-host.yml@{{LIB_REV}}

@@ -75,19 +75,41 @@ const RESTRICTED_RUNTIME = "vendor/restricted-wasm-v1/kotoba-client-runtime.js";
 const VIEW_IMPORT = /^import \{[^}]*\} from "\.\/view\.js";\n/m;
 
 /**
- * The guest's one inline script: view.js without its `export` keywords, then
- * guest.js without its view.js import. Both are template files, so the text
- * (and its CSP hash) is the same for every series app of one template revision.
+ * The guest's one inline script: view.js and form.js without their `export`
+ * keywords, then guest.js without its view.js import. All are lib files, so
+ * the text (and its CSP hash) is the same for every app of one lib commit.
  */
 export function guestScript(lib = LIB) {
   const view = readFileSync(resolve(lib, "src/view.js"), "utf8");
+  const form = readFileSync(resolve(lib, "src/form.js"), "utf8");
   const guest = readFileSync(resolve(lib, "src/guest.js"), "utf8");
   if (/^\s*import\b/m.test(view)) throw new Error("src/view.js must not import: it is inlined into the restricted guest");
+  if (/^\s*import\b/m.test(form)) throw new Error("src/form.js must not import: it is inlined into the restricted guest");
   if (!VIEW_IMPORT.test(guest)) throw new Error("src/guest.js must import from ./view.js on one line");
-  const script = view.replace(/^export /gm, "") + "\n" + guest.replace(VIEW_IMPORT, "");
+  const script = view.replace(/^export /gm, "") + "\n" + form.replace(/^export /gm, "") + "\n" + guest.replace(VIEW_IMPORT, "");
   if (/^\s*(import|export)\b/m.test(script)) throw new Error("the restricted guest script still has an import or export");
   if (/<\/script/i.test(script)) throw new Error("the restricted guest script contains </script");
+  checkNoSubmit(script, "the restricted guest script");
   return script;
+}
+
+/**
+ * The restricted sandbox has no allow-forms: a submit event never fires.
+ * Throws when guest code relies on one (a submit listener, onsubmit,
+ * requestSubmit or form.submit()) or markup has a type=submit control. Use
+ * bindForm (src/form.js) and <button type="button" data-submit> instead.
+ */
+export function checkNoSubmit(text, what) {
+  const rules = [
+    [/addEventListener\(\s*["'`]submit["'`]/, "a submit listener"],
+    [/\bonsubmit\s*=/, "an onsubmit handler"],
+    [/\.requestSubmit\s*\(/, "requestSubmit()"],
+    [/\.submit\s*\(\s*\)/, "form.submit()"],
+    [/<(button|input)\b[^>]*\btype\s*=\s*["']?submit\b/i, "a type=submit control"],
+  ];
+  for (const [re, name] of rules) {
+    if (re.test(text)) throw new Error(`${what} relies on ${name}, which never fires in the restricted-wasm-v1 sandbox; use bindForm and <button type="button" data-submit>`);
+  }
 }
 
 export function guestStyle(lib = LIB) {
@@ -248,6 +270,7 @@ export async function build(appRoot = process.cwd(), env = process.env, { now = 
     // `<` never appears raw in the JSON block, so no text in the data can close it.
     const json = JSON.stringify(data).replace(/</g, "\\u003c");
     const html = fill(await readFile(resolve(lib, "src/guest.html"), "utf8"), "guest.html", { TITLE: title, STYLE: guestStyle(lib), DATA: json, SCRIPT: guestScript(lib) });
+    checkNoSubmit(html.replace(/<script type="application\/json" id="data">[\s\S]*?<\/script>/, ""), "the restricted guest");
     const bytes = Buffer.from(html, "utf8");
     if (html.length > 8388608) throw new Error("the restricted guest exceeds the 8 MiB mount budget");
     guest = { revision: state.source_commit, sha256: sha(bytes), "max-bytes": bytes.length };
