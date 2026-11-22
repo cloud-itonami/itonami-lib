@@ -13,6 +13,7 @@ Rule (Decision, 2026-11-22): every KOTOBA-159 migration PR and every itonami-lib
 | System bar insets and colours, light and dark | | | Android | | |
 | No network: CSP connect-src, no INTERNET permission | | | all / Android | | |
 | Deep links, the browser's Back button, anchors | | | web | | |
+| Scroll position restored on Back (measure scrollY before and after) | | | all | | |
 | Offline behaviour | | | all | | |
 | Recents and screenshot behaviour | | | Android | | |
 | Package id, label, version | | | Android | | |
