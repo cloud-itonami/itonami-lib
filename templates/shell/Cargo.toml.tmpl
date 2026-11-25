@@ -11,6 +11,8 @@ itonami-series-build = {{LIB_DEP}}
 [dependencies]
 # tauri must equal the pin in itonami-series-host: generate_context!() expands here.
 tauri = { version = "=3.0.0-alpha.6", features = [] }
+# mobile_entry_point in src/lib.rs needs the wry runtime crate at the same pin as itonami-series-host.
+tauri-runtime-wry = "=3.0.0-alpha.6"
 itonami-series-host = {{LIB_DEP}}
 [features]
 custom-protocol = ["tauri/custom-protocol"]

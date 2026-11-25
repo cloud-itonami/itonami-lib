@@ -88,6 +88,14 @@ test("init writes the identity files and the shell, pinned by rev", async (t) =>
   assert.ok(host.includes('"app/src-tauri/**"') && host.includes('"app/package-lock.json"'));
 });
 
+test("the shell pins tauri-runtime-wry at the host's version for mobile_entry_point", async () => {
+  const tmpl = await readFile(join(LIB, "templates/shell/Cargo.toml.tmpl"), "utf8");
+  const host = await readFile(join(LIB, "crates/itonami-series-host/Cargo.toml"), "utf8");
+  const pin = /tauri-runtime-wry = "([^"]+)"/.exec(host)?.[1];
+  assert.ok(pin, "itonami-series-host pins tauri-runtime-wry");
+  assert.ok(tmpl.includes(`tauri-runtime-wry = "${pin}"`), `src/lib.rs's mobile_entry_point needs tauri-runtime-wry = "${pin}" in app/src-tauri/Cargo.toml (E0433 on android build)`);
+});
+
 test("a lib pin must be a commit SHA, never a branch or a tag", async (t) => {
   for (const bad of ["main", "v0.1.0", "0123456", REV.toUpperCase()]) {
     assert.throws(() => libSpec({ rev: bad }), /40-hex commit SHA/);
